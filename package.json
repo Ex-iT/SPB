@@ -24,6 +24,13 @@
     "Vac",
     "Bans"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Ex-iT/SPB.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Ex-iT/SPB/issues"
+  },
   "author": "Ex-iT",
   "license": "ISC",
   "dependencies": {},
