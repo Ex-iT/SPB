@@ -12,14 +12,13 @@ const apiSteamUrl = '/api/steam';
 const steamApiUrl = 'https://api.steampowered.com/ISteamUser';
 const apiKey = process.env.KEY;
 
-const port = process.env.NODE_ENV === 'production' ? 80 : 3000;
-
 if (!apiKey) {
 	throw new Error('Please start with a Steam API key.');
 }
 
 // Express
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.disable('x-powered-by');
 app.use(bodyParser.json());
