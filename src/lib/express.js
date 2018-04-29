@@ -10,6 +10,11 @@ const apiUrl = `/api${apiVersion}`;
 const apiSteamUrl = '/api/steam';
 
 const steamApiUrl = 'https://api.steampowered.com/ISteamUser';
+const apiKey = process.env.KEY;
+
+if (!apiKey) {
+	throw new Error('Please start with a Steam API key.');
+}
 
 // Express
 const app = express();
@@ -25,6 +30,20 @@ function sendError(res, message, code = 500) {
 // Api - Steam
 app.get(`${apiSteamUrl}/resolvevanityurl/:name`, (req, res) => {
 	fetch(`${steamApiUrl}/ResolveVanityURL/v0001/?key=${apiKey}&vanityurl=${req.params.name}`)
+		.then(resp => resp.json())
+		.then(json => res.json(json))
+		.catch(err => sendError(res, err));
+});
+
+app.get(`${apiSteamUrl}/playerinfo/:steamids`, (req, res) => {
+	fetch(`${steamApiUrl}/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${req.params.steamids}`)
+		.then(resp => resp.json())
+		.then(json => res.json(json))
+		.catch(err => sendError(res, err));
+});
+
+app.get(`${apiSteamUrl}/playerban/:steamids`, (req, res) => {
+	fetch(`${steamApiUrl}/GetPlayerBans/v1/?key=${apiKey}&steamids=${req.params.steamids}`)
 		.then(resp => resp.json())
 		.then(json => res.json(json))
 		.catch(err => sendError(res, err));
@@ -68,10 +87,10 @@ app.get(`${apiUrl}/user`, (req, res) => {
 });
 
 // Front
+const root = path.join(__dirname, '..', '..', 'dist');
 app.use('/static', express.static(path.join(__dirname, '..', '..', 'src', 'static')));
-app.get('/', (req, res) => {
-	res.sendFile('index.html', { root: path.join(__dirname, '..', '..', 'dist') });
-});
+app.get('/favicon.ico', (req, res) => res.sendFile('favicon.ico', { root }) );
+app.get('/', (req, res) => res.sendFile('index.html', { root }) );
 
 app.get('*', (req, res) => res.status(400));
 

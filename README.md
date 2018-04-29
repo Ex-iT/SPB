@@ -19,6 +19,8 @@ Starting development server:
     $ npm run dev
 
 
-## Front-end & API
+## API key
 
-The front-end run on http://localhost:8080/ and the API runs on http://localhost:3000/
+In order to use the Steam API the key should be provided when starting the server.
+
+Windows Powershell E.g: `$env:KEY="XXXXXXXXXXXXXXXXX"`.

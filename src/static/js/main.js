@@ -7,8 +7,7 @@
 		event.preventDefault();
 		getSteamIdByProfileUrl(event.target.url.value)
 			.then(steamId => {
-				// const userInfo = getUserInfo(steamId);
-				console.log(steamId);
+				getUserInfoByIds([steamId]);
 			})
 			.catch(err => {
 				console.log('error', err);
@@ -45,8 +44,23 @@
 		});
 	}
 
-	function getUserInfo(steamId) {
-		console.log('getUserInfo', steamId);
+	function getUserInfoByIds(steamIds) {
+		getUserInfo(steamIds)
+			.then(info => {
+				console.log(info);
+			})
+			.catch(err => {
+				console.log('error', err);
+			});
+	}
+
+	function getUserInfo(steamIds) {
+		return new Promise((resolve, reject) => {
+			fetch(`${apiSteamUrl}/playerinfo/${steamIds.join(',')}`)
+				.then(resp => resp.json())
+				.then(json => resolve(json))
+				.catch(err => reject(err));
+		});
 	}
 
 
