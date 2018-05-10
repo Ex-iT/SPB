@@ -3,14 +3,17 @@ const db = new Datastore({ filename: './data.nedb', autoload: true });
 
 function setUser(data) {
 	return new Promise((resolve, reject) => {
-		db.findOne({ steamid: data.steamid }, (err, doc) => {
+		const userInfo = data[0];
+		userInfo.added = Math.round((new Date()).getTime() / 1000);
+
+		db.findOne({ steamid: userInfo.steamid }, (err, doc) => {
 			if (err) reject(err);
 			if (doc) {
 				// User already exists so return this user
 				resolve(doc);
 			} else {
 				// Insert the new user
-				db.insert(data, (err, newDoc) => {
+				db.insert(userInfo, (err, newDoc) => {
 					if (err) reject(err);
 					resolve(newDoc);
 				});
