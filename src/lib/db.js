@@ -3,7 +3,7 @@ const db = new Datastore({ filename: './data.nedb', autoload: true });
 
 function setUser(data) {
 	return new Promise((resolve, reject) => {
-		db.findOne({ name: data.name }, (err, doc) => {
+		db.findOne({ steamid: data.steamid }, (err, doc) => {
 			if (err) reject(err);
 			if (doc) {
 				// User already exists so return this user
@@ -21,8 +21,11 @@ function setUser(data) {
 
 function getUserByName(name) {
 	return new Promise((resolve, reject) => {
-		db.find({ name: new RegExp(name, 'i') })
-			.sort({ name: 1 })
+		db.find({ $or: [
+			{ personaname: new RegExp(name, 'i') },
+			{ realname: new RegExp(name, 'i') }
+		]})
+			.sort({ personaname: 1, realname: 1 })
 			.exec((err, docs) => {
 				if (err) reject(err);
 				resolve(docs);
@@ -30,9 +33,9 @@ function getUserByName(name) {
 	});
 }
 
-function getUserById(id) {
+function getUserById(steamId) {
 	return new Promise((resolve, reject) => {
-		db.findOne({ _id: id }, (err, doc) => {
+		db.findOne({ steamid: steamId }, (err, doc) => {
 			if (err) reject(err);
 			resolve(doc);
 		});
@@ -40,7 +43,7 @@ function getUserById(id) {
 }
 
 function getAllData(sortOptions, limit = 50, skip = 0) {
-	const sorting = { key: 'name', order: 1 };
+	const sorting = { key: 'added', order: -1 };
 	if (sortOptions && sortOptions.key) {
 		sorting.key = sortOptions.key;
 		sorting.order = sortOptions.order === 'asc' ? -1 : 1;
@@ -68,9 +71,9 @@ function getTotal() {
 	});
 }
 
-function removeUserById(id) {
+function removeUserById(steamId) {
 	return new Promise((resolve, reject) => {
-		db.remove({ _id: id }, (err, numRemoved) => {
+		db.remove({ steamid: steamId }, (err, numRemoved) => {
 			if (err) reject(err);
 			resolve(numRemoved);
 		});
