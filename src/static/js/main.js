@@ -3,16 +3,23 @@
 	const apiSteamUrl = '/api/steam';
 	const form = d.getElementById('form');
 
+	// Set initial view
+	updateView();
+
 	form.addEventListener('submit', event => {
 		event.preventDefault();
-		getSteamIdByProfileUrl(event.target.url.value)
-			.then(steamId => {
-				getUserInfoByIds([steamId]);
-			})
-			.catch(err => {
-				console.log('error', err);
-			});
+		addPlayer(event.target.url.value);
 	});
+
+	function addPlayer(profileUrl) {
+		getSteamIdByProfileUrl(profileUrl)
+			.then(steamId => {
+				getUserInfoByIds([steamId])
+					.then(userInfo => addUser(userInfo))
+					.catch(err => console.log('error', err));
+			})
+			.catch(err => console.log('error', err));
+	}
 
 	function getSteamIdByProfileUrl(url) {
 		return new Promise((resolve, reject) => {
@@ -45,57 +52,102 @@
 	}
 
 	function getUserInfoByIds(steamIds) {
-		getUserInfo(steamIds)
-			.then(info => {
-				console.log(info);
-			})
-			.catch(err => {
-				console.log('error', err);
-			});
+		return new Promise((resolve, reject) => {
+			Promise.all([
+				getPlayerInfo(steamIds),
+				getPlayerBans(steamIds)
+			])
+				.then(data => {
+					const fullInfo = [];
+					const playerInfo = data[0].players;
+					const playerBan = data[1].players;
+
+					playerInfo.forEach((playerInfo, index) => {
+						fullInfo.push(Object.assign({}, playerInfo, playerBan[index]));
+					});
+
+					resolve(fullInfo);
+				})
+				.catch(err => reject(err));
+		});
 	}
 
-	function getUserInfo(steamIds) {
+	function getPlayerBans(steamIds) {
 		return new Promise((resolve, reject) => {
-			fetch(`${apiSteamUrl}/playerinfo/${steamIds.join(',')}`)
+			fetch(`${apiSteamUrl}/playerban/${steamIds.join(',')}`)
 				.then(resp => resp.json())
 				.then(json => resolve(json))
 				.catch(err => reject(err));
 		});
 	}
 
+	function getPlayerInfo(steamIds) {
+		return new Promise((resolve, reject) => {
+			fetch(`${apiSteamUrl}/playerinfo/${steamIds.join(',')}`)
+				.then(resp => resp.json())
+				.then(json => resolve(json.response))
+				.catch(err => reject(err));
+		});
+	}
 
-	// fetch(`${apiUrl}/user`)
-	// 	.then(response => response.json())
-	// 	.then(json => {
-	// 		console.log(json);
-	// 	});
+	function addUser(userInfo) {
+		fetch(`${apiUrl}/user/add`, {
+			method: 'POST',
+			headers: new Headers({ 'Content-Type': 'application/json' }),
+			body: JSON.stringify(userInfo)
+		})
+			.then(response => response.json())
+			.then(addedUser => updateView(addedUser))
+			.catch(err => console.log(err));
+	}
 
-	// fetch(`${apiUrl}/user/total`)
-	// 	.then(response => response.json())
-	// 	.then(json => {
-	// 		console.log(json);
-	// 	});
+	function updateView(userInfo = null) {
+		getTotal();
+		updateUsers(userInfo);
+		clearForm();
+	}
 
-	// const body = JSON.stringify({ name: 'foo4', code: '123' });
-	// fetch(`${apiUrl}/user/add`, {
-	// 	method: 'POST',
-	// 	headers: new Headers({
-	// 		'Content-Type': 'application/json'
-	// 	}),
-	// 	body
-	// })
-	// 	.then(response => response.json())
-	// 	.then(json => {
-	// 		console.log(json);
-	// 	});
+	function clearForm() {
+		form.url.value = '';
+	}
 
-	// const userId = 'uSIdpTVFjtLrpWBM';
-	// fetch(`${apiUrl}/user/remove/${userId}`, {
-	// 	method: 'POST'
-	// })
-	// 	.then(response => response.json())
-	// 	.then(json => {
-	// 		console.log(json);
-	// 	});
+	function getTotal() {
+		fetch(`${apiUrl}/user/total`)
+			.then(response => response.json())
+			.then(json => d.getElementById('total').innerHTML = json.total)
+			.catch(err => console.log(err));
+	}
+
+	function updateUsers(userInfo = null) {
+		if (userInfo) {
+			appendUser(userInfo);
+		} else {
+			getAllUsers();
+		}
+	}
+
+	function getAllUsers() {
+		fetch(`${apiUrl}/user`)
+			.then(response => response.json())
+			.then(usersInfo => {
+				usersInfo.forEach(userInfo => appendUser(userInfo));
+			})
+			.catch(err => console.log(err));
+	}
+
+	function appendUser(userInfo) {
+		const list = d.getElementById('user-list');
+		const item = d.createElement('li');
+		item.innerHTML = `<img src="${userInfo.avatarmedium}" alt="" /><a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a>`;
+		list.appendChild(item);
+	}
+
+	function removeUser(steamId) {
+		fetch(`${apiUrl}/user/remove/${steamId}`, {
+			method: 'POST'
+		})
+			.then(response => response.json())
+			.then(userInfo => updateView(userInfo));
+	}
 
 })(document);
