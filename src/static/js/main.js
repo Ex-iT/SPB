@@ -1,7 +1,7 @@
-(d => {
+(doc => {
 	const apiUrl = '/api/v1';
 	const apiSteamUrl = '/api/steam';
-	const form = d.getElementById('form');
+	const form = doc.getElementById('form');
 
 	// Set initial view
 	updateView();
@@ -114,13 +114,13 @@
 	function getTotal() {
 		fetch(`${apiUrl}/user/total`)
 			.then(response => response.json())
-			.then(json => d.getElementById('total').innerHTML = json.total)
+			.then(json => doc.getElementById('total').innerHTML = json.total)
 			.catch(err => console.log(err));
 	}
 
 	function updateUsers(userInfo = null) {
 		if (userInfo) {
-			appendUser(userInfo);
+			updateUserList(userInfo, true);
 		} else {
 			getAllUsers();
 		}
@@ -130,16 +130,22 @@
 		fetch(`${apiUrl}/user`)
 			.then(response => response.json())
 			.then(usersInfo => {
-				usersInfo.forEach(userInfo => appendUser(userInfo));
+				usersInfo.forEach(userInfo => updateUserList(userInfo));
 			})
 			.catch(err => console.log(err));
 	}
 
-	function appendUser(userInfo) {
-		const list = d.getElementById('user-list');
-		const item = d.createElement('li');
+	function updateUserList(userInfo, prepend = false) {
+		const list = doc.getElementById('user-list');
+		const item = doc.createElement('li');
+		item.dataset.steamId = userInfo.steamid;
 		item.innerHTML = `<img src="${userInfo.avatarmedium}" alt="" /><a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a>`;
-		list.appendChild(item);
+
+		if (prepend && list.children.length) {
+			list.insertBefore(item, list.children[0]);
+		} else {
+			list.appendChild(item);
+		}
 	}
 
 	function removeUser(steamId) {
