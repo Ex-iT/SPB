@@ -130,7 +130,9 @@
 		fetch(`${apiUrl}/user`)
 			.then(response => response.json())
 			.then(usersInfo => {
-				usersInfo.forEach(userInfo => updateUserList(userInfo));
+				Object.keys(usersInfo)
+					.filter(object => object.indexOf('_') === -1)
+					.forEach(key => updateUserList(usersInfo[key]));
 			})
 			.catch(err => console.log(err));
 	}

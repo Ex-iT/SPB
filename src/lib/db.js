@@ -1,79 +1,111 @@
-const Datastore = require('nedb');
-const db = new Datastore({ filename: './data.nedb', autoload: true });
+const firebase = require('firebase-admin');
+
+const serviceAccount = require('../cert/serviceAccountKey.json');
+
+firebase.initializeApp({
+	credential: firebase.credential.cert(serviceAccount),
+	databaseURL: 'https://ban-check-42fc3.firebaseio.com/'
+});
+
+const database = firebase.firestore();
+const db = database.collection('players');
+
+// @TODO: Think of a solution for partial search
+function getUsersByName(name) {
+	return new Promise((resolve, reject) => {
+		db.where('personaname', '==', name)
+			.get()
+			.then(snapshot => {
+				let docs = {};
+				snapshot.forEach(doc => docs[doc.id] = doc.data());
+				resolve(docs);
+			})
+			.catch(err => reject(err));
+	});
+}
 
 function setUser(data) {
 	return new Promise((resolve, reject) => {
 		const userInfo = data[0];
 		userInfo.added = Math.round((new Date()).getTime() / 1000);
+		const playerRef = db.doc(userInfo.steamid);
 
-		db.findOne({ steamid: userInfo.steamid }, (err, doc) => {
-			if (err) reject(err);
-			if (doc) {
-				// User already exists so return this user
-				resolve(doc);
-			} else {
-				// Insert the new user
-				db.insert(userInfo, (err, newDoc) => {
-					if (err) reject(err);
-					resolve(newDoc);
-				});
-			}
-		});
-	});
-}
-
-function getUserByName(name) {
-	return new Promise((resolve, reject) => {
-		db.find({ $or: [
-			{ personaname: new RegExp(name, 'i') },
-			{ realname: new RegExp(name, 'i') }
-		]})
-			.sort({ personaname: 1, realname: 1 })
-			.exec((err, docs) => {
-				if (err) reject(err);
-				resolve(docs);
-			});
+		db.doc(userInfo.steamid).get()
+			.then(doc => {
+				if (doc.exists) {
+					resolve(userInfo);
+				} else {
+					playerRef.set(userInfo)
+						.then(response => resolve(Object.assign({}, userInfo, response)))
+						.catch(err => reject(err));
+				}
+			})
+			.catch(err => reject(err));
 	});
 }
 
 function getUserById(steamId) {
 	return new Promise((resolve, reject) => {
-		db.findOne({ steamid: steamId }, (err, doc) => {
-			if (err) reject(err);
-			resolve(doc);
-		});
+		db.doc(steamId)
+			.get()
+			.then(doc => {
+				if (doc.exists) {
+					resolve(doc.data());
+				} else {
+					reject({ error: true, message: 'Can\'t find player' });
+				}
+			})
+			.catch(err => {
+				reject(err);
+			});
 	});
 }
 
-function getAllData(sortOptions, limit = 50, skip = 0) {
-	const sorting = { key: 'added', order: -1 };
-	if (sortOptions && sortOptions.key) {
-		sorting.key = sortOptions.key;
-		sorting.order = sortOptions.order === 'asc' ? -1 : 1;
+function getAllData(params) {
+	const limit = parseInt(params.limit, 10) || 50;
+	const sorting = { key: 'added', order: 'desc' };
+	let startAfter = params.startAfter;
+
+	if (params.valueType === 'number') {
+		startAfter = parseInt(params.startAfter, 10);
+	}
+
+	if (params.key) {
+		sorting.key = params.key;
+		sorting.order = params.order || 'asc';
 	}
 
 	return new Promise((resolve, reject) => {
-		db.find({})
-			.skip(skip)
-			.limit(limit)
-			.sort({ [sorting.key]:sorting.order })
-			.exec((err, docs) => {
-				if (err) reject(err);
+		let query = db.orderBy(sorting.key, sorting.order).limit(limit);
+		if (startAfter) {
+			query = query.startAfter(startAfter);
+		}
+
+		query.get()
+			.then(snapshot => {
+				const value = snapshot.docs[snapshot.docs.length - 1].data()[sorting.key];
+				let docs = { _startAfter: value, _valueType: typeof value };
+				snapshot.forEach(doc => docs[doc.id] = doc.data());
 				resolve(docs);
-			});
+			})
+			.catch(err => reject(err));
 	});
 }
 
 function getTotal() {
 	return new Promise((resolve, reject) => {
-		db.count({})
-			.exec((err, docs) => {
-				if (err) reject(err);
-				resolve(docs);
-			});
+		db.get()
+			.then(doc => resolve(doc.size))
+			.catch(err => reject(err));
 	});
 }
 
+// @TODO: implement
+function updateUserById(userInfo) {
+	console.log(userInfo);
+}
+
+// @TODO: refactor
 function removeUserById(steamId) {
 	return new Promise((resolve, reject) => {
 		db.remove({ steamid: steamId }, (err, numRemoved) => {
@@ -85,9 +117,10 @@ function removeUserById(steamId) {
 
 module.exports = {
 	setUser,
-	getUserByName,
+	getUsersByName,
 	getUserById,
 	getAllData,
 	getTotal,
+	updateUserById,
 	removeUserById
 };

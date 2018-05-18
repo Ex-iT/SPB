@@ -58,7 +58,7 @@ app.get(`${apiUrl}/user/total`, (req, res) => {
 });
 
 app.get(`${apiUrl}/user/name/:name`, (req, res) => {
-	db.getUserByName(req.params.name)
+	db.getUsersByName(req.params.name)
 		.then(data => res.json(data))
 		.catch(err => sendError(res, err));
 });
