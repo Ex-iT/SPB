@@ -156,6 +156,7 @@
 				.then(json => {
 					console.log(`Player ${json.steamid} removed`);
 					item.remove();
+					getTotal();
 				})
 				.catch(err => console.log(err));
 		});
