@@ -19,8 +19,8 @@ Starting development server:
     $ npm run dev
 
 
-## API key
+## Configuration (API Keys etc.)
 
-In order to use the Steam API the key should be provided when starting the server.
+In order to load the configuration make sure there is a `config.json` file in the `src/` folder or provide a URL to it by setting the env var `CONFIG`.
 
-Windows Powershell E.g: `$env:KEY="XXXXXXXXXXXXXXXXX"`.
+Windows Powershell E.g: `$env:CONFIG="https://<url-to-config.json>"`.

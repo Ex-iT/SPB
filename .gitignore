@@ -17,5 +17,4 @@ yarn-error.log*
 
 # Project specific
 DEVNOTES.md
-cert/
-data.nedb
+config.json

@@ -1,16 +1,18 @@
 const firebase = require('firebase-admin');
 
-const serviceAccount = require('../cert/serviceAccountKey.json');
+let db;
 
-firebase.initializeApp({
-	credential: firebase.credential.cert(serviceAccount),
-	databaseURL: 'https://ban-check-42fc3.firebaseio.com/'
-});
+function initFirebase({ serviceAccountKey, fireBaseUrl }) {
+	firebase.initializeApp({
+		credential: firebase.credential.cert(serviceAccountKey),
+		databaseURL: fireBaseUrl
+	});
 
-const database = firebase.firestore();
-const db = database.collection('players');
+	const database = firebase.firestore();
+	db = database.collection('players');
+}
 
-// @TODO: Think of a solution for partial search
+// @TODO: Implement http://fusejs.io/
 function getUsersByName(name) {
 	return new Promise((resolve, reject) => {
 		db.where('personaname', '==', name)
@@ -116,6 +118,7 @@ function removeUserById(steamId) {
 }
 
 module.exports = {
+	initFirebase,
 	setUser,
 	getUsersByName,
 	getUserById,
