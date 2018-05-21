@@ -81,9 +81,15 @@ function initExpress({steamApiUrl, apiKey}) {
 			.catch(err => sendError(res, err));
 	});
 
-	app.post(`${apiUrl}/user/remove/:id`, (req, res) => {
-		db.removeUserById(req.params.id)
-			.then(data => res.json({ numRemoved: data }))
+	app.post(`${apiUrl}/user/remove`, (req, res) => {
+		db.removeUserById(req.body.steamid)
+			.then(data => res.json(data))
+			.catch(err => sendError(res, err));
+	});
+
+	app.post(`${apiUrl}/user/update`, (req, res) => {
+		db.updateUserById(req.body.steamid, req.body.updateddata)
+			.then(data => res.json(data))
 			.catch(err => sendError(res, err));
 	});
 

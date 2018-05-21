@@ -72,9 +72,9 @@
 		});
 	}
 
-	function getPlayerBans(steamIds) {
+	function getPlayerBans(steamId) {
 		return new Promise((resolve, reject) => {
-			fetch(`${apiSteamUrl}/playerban/${steamIds.join(',')}`)
+			fetch(`${apiSteamUrl}/playerban/${steamId}`)
 				.then(resp => resp.json())
 				.then(json => resolve(json))
 				.catch(err => reject(err));
@@ -141,21 +141,63 @@
 		const list = doc.getElementById('user-list');
 		const item = doc.createElement('li');
 		item.dataset.steamId = userInfo.steamid;
-		item.innerHTML = `<img src="${userInfo.avatarmedium}" alt="" /><a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a>`;
+
+		const removeBtn = doc.createElement('button');
+		removeBtn.type = 'button';
+		removeBtn.innerHTML = 'Remove';
+
+		removeBtn.addEventListener('click', () => {
+			fetch(`${apiUrl}/user/remove`, {
+				method: 'POST',
+				headers: new Headers({ 'Content-Type': 'application/json' }),
+				body: JSON.stringify({ steamid: userInfo.steamid })
+			})
+				.then(response => response.json())
+				.then(json => {
+					console.log(`Player ${json.steamid} removed`);
+					item.remove();
+				})
+				.catch(err => console.log(err));
+		});
+
+		const updateBtn = doc.createElement('button');
+		updateBtn.type = 'button';
+		updateBtn.innerHTML = 'Update bans';
+
+		updateBtn.addEventListener('click', () => {
+			getPlayerBans(userInfo.steamid)
+				.then(playerBans => {
+					fetch(`${apiUrl}/user/update`, {
+						method: 'POST',
+						headers: new Headers({ 'Content-Type': 'application/json' }),
+						body: JSON.stringify({
+							steamid: userInfo.steamid,
+							updateddata: playerBans.players[0]
+						})
+					})
+						.then(response => response.json())
+						.then(json => {
+							console.log(`Player ${json.steamid} updated`, item);
+						})
+						.catch(err => console.log(err));
+				});
+		});
+
+		item.innerHTML = `<img src="${userInfo.avatarmedium}" alt="" />
+			<a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a>
+			${userInfo.VACBanned ? `<span>VACS: ${userInfo.NumberOfVACBans}</span> - ${userInfo.DaysSinceLastBan} days ago` : '' }
+			${userInfo.NumberOfGameBans ? `<span>Game bans: ${userInfo.NumberOfGameBans} - ${userInfo.DaysSinceLastBan} days ago` : ''}
+		`;
+
+		item.appendChild(updateBtn);
+		item.appendChild(removeBtn);
+
 
 		if (prepend && list.children.length) {
 			list.insertBefore(item, list.children[0]);
 		} else {
 			list.appendChild(item);
 		}
-	}
-
-	function removeUser(steamId) {
-		fetch(`${apiUrl}/user/remove/${steamId}`, {
-			method: 'POST'
-		})
-			.then(response => response.json())
-			.then(userInfo => updateView(userInfo));
 	}
 
 })(document);

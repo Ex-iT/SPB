@@ -57,9 +57,7 @@ function getUserById(steamId) {
 					reject({ error: true, message: 'Can\'t find player' });
 				}
 			})
-			.catch(err => {
-				reject(err);
-			});
+			.catch(err => reject(err));
 	});
 }
 
@@ -102,18 +100,21 @@ function getTotal() {
 	});
 }
 
-// @TODO: implement
-function updateUserById(userInfo) {
-	console.log(userInfo);
+function updateUserById(steamId, updatedData) {
+	return new Promise((resolve, reject) => {
+		db.doc(steamId)
+			.update(updatedData)
+			.then(response => resolve({ _writeTime: response._writeTime, steamid: steamId }))
+			.catch(err => reject(err));
+	});
 }
 
-// @TODO: refactor
 function removeUserById(steamId) {
 	return new Promise((resolve, reject) => {
-		db.remove({ steamid: steamId }, (err, numRemoved) => {
-			if (err) reject(err);
-			resolve(numRemoved);
-		});
+		db.doc(steamId)
+			.delete()
+			.then(response => resolve({ _writeTime: response._writeTime, steamid: steamId }))
+			.catch(err => reject(err));
 	});
 }
 
