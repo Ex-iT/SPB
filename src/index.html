@@ -12,24 +12,29 @@
 		<h1>Steam Player Bans</h1>
 	</header>
 	<main>
-		<form id="form-add" class="form" action="" autocomplete="off">
-			<div class="form-row">
-				<div class="form-inp-row">
-					<input class="inp" type="text" name="url" placeholder="Players profile URL">
-					<div class="overlay"></div>
-					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-				</div>
-				<button class="btn primary">Add Player</button>
-			</div>
-		</form>
-		<form id="form-search" class="form" action="" autocomplete="off" hidden>
+		<form id="form-search" class="form" action="" autocomplete="off" xhidden>
 			<div class="form-row">
 				<div class="form-inp-row">
 				<input class="inp" type="text" name="search" placeholder="Player name">
 					<div class="overlay"></div>
 					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 				</div>
-				<button class="btn primary">Search Player</button>
+				<div class="form-btn-row">
+					<button class="btn secondary">Search Player</button>
+					<button id="btn-clear" class="btn" type="button">Clear</button>
+				</div>
+			</div>
+		</form>
+		<form id="form-add" class="form" action="" autocomplete="off">
+			<div class="form-row">
+				<div class="form-inp-row">
+					<input class="inp" type="text" name="url" placeholder="Player profile URL">
+					<div class="overlay"></div>
+					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+				</div>
+				<div class="form-btn-row">
+					<button class="btn primary">Add Player</button>
+				</div>
 			</div>
 		</form>
 		<ul id="notifications" class="notifications"></ul>
@@ -43,7 +48,6 @@
 				<div class="user-list-details">
 					<a href="{{ profileurl }}" target="_blank" rel="noopener noreferrer"><img class="avatar" src="{{ avatarmedium }}" alt="{{ personaname }}" /></a>
 					<a href="{{ profileurl }}" target="_blank" rel="noopener noreferrer">{{ personaname }}</a>
-
 					<div class="user-list-bans">
 						{% if NumberOfVACBans %}
 							<p>Vac: {{ NumberOfVACBans }} - {{ DaysSinceLastBan }} days ago</p>

@@ -93,8 +93,13 @@ input {
 	display: flex;
 }
 
-.form-row .btn {
+.form-btn-row {
+	align-self: center;
 	flex: 0 0 auto;
+}
+
+.form-btn-row .btn:first-child {
+	margin-right: var(--spacing-extra-small);
 }
 
 .form-inp-row {

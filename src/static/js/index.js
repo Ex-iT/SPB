@@ -11,6 +11,7 @@ import sTE from './lib/STE.js';
 	function addEvents() {
 		const formAdd = doc.getElementById('form-add');
 		const formSearch = doc.getElementById('form-search');
+		const btnClear = doc.getElementById('btn-clear');
 
 		formAdd.addEventListener('submit', event => {
 			event.preventDefault();
@@ -19,8 +20,35 @@ import sTE from './lib/STE.js';
 
 		formSearch.addEventListener('submit', event => {
 			event.preventDefault();
-			console.log('Implement search -', event.target.search.value);
+			findPlayer(event.target, event.target.search.value);
 		});
+
+		btnClear.addEventListener('click', event => {
+			event.preventDefault();
+			clearUserList();
+			getAllUsers();
+			getTotal();
+
+			formSearch.search.value = '';
+		});
+	}
+
+	function findPlayer(form, query) {
+		form.classList.add('loading');
+		if (query) {
+			getPlayerByName(query)
+				.then(usersInfo => {
+					clearUserList();
+					const steamIds = Object.keys(usersInfo);
+					steamIds.forEach(steamId => updateUsers(usersInfo[steamId]));
+					setTotal(steamIds.length);
+				})
+				.catch(err => addNotification(err))
+				.finally(() => form.classList.remove('loading'));
+		} else {
+			addNotification('Enter a search query', 'warning');
+			form.classList.remove('loading');
+		}
 	}
 
 	function addPlayer(form, profileUrl) {
@@ -29,7 +57,7 @@ import sTE from './lib/STE.js';
 			.then(steamId => {
 				getUserInfoByIds([steamId])
 					.then(userInfo => addUser(userInfo))
-					.catch(userInfo => addNotification(`Player <a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a> already added.`, 'warning'))
+					.catch(userInfo => addNotification(`Player <a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a> already added`, 'warning'))
 					.finally(() => form.classList.remove('loading'));
 			})
 			.catch(err => {
@@ -111,6 +139,15 @@ import sTE from './lib/STE.js';
 		});
 	}
 
+	function getPlayerByName(name) {
+		return new Promise((resolve, reject) => {
+			fetch(`${apiUrl}/user/name/${name}`)
+				.then(response => response.json())
+				.then(userInfo => resolve(userInfo))
+				.catch(err => reject(err));
+		});
+	}
+
 	function addUser(userInfo) {
 		return new Promise((resolve, reject) => {
 			fetch(`${apiUrl}/user/add`, {
@@ -156,17 +193,23 @@ import sTE from './lib/STE.js';
 
 	function clearForm() {
 		const formAdd = doc.getElementById('form-add');
-		const formSearch = doc.getElementById('form-search');
-
 		formAdd.url.value = '';
-		formSearch.search.value = '';
+	}
+
+	function clearUserList() {
+		const userList = doc.getElementById('user-list');
+		userList.innerHTML = '';
 	}
 
 	function getTotal() {
 		fetch(`${apiUrl}/user/total`)
 			.then(response => response.json())
-			.then(json => doc.getElementById('total').innerHTML = json.total)
+			.then(json => setTotal(json.total))
 			.catch(err => console.log(err));
+	}
+
+	function setTotal(number) {
+		doc.getElementById('total').innerHTML = number;
 	}
 
 	function updateUsers(userInfo = null) {
@@ -185,7 +228,7 @@ import sTE from './lib/STE.js';
 					.filter(object => object.indexOf('_') === -1)
 					.forEach(key => updateUserList(usersInfo[key]));
 			})
-			.catch(err => console.log(err));
+			.catch(err => addNotification(err));
 	}
 
 	function removeItem(steamId) {
