@@ -98,8 +98,8 @@ input {
 	flex: 0 0 auto;
 }
 
-.form-btn-row .btn:first-child {
-	margin-right: var(--spacing-extra-small);
+.form-btn-row .btn:not(:first-child) {
+	margin-left: var(--spacing-extra-small);
 }
 
 .form-inp-row {
