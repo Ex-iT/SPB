@@ -35,7 +35,7 @@ function setUser(data) {
 		db.doc(userInfo.steamid).get()
 			.then(doc => {
 				if (doc.exists) {
-					resolve(userInfo);
+					resolve({ error: true, userInfo});
 				} else {
 					playerRef.set(userInfo)
 						.then(response => resolve(Object.assign({}, userInfo, response)))
@@ -102,7 +102,6 @@ function getTotal() {
 
 function updateUserById(steamId, updatedData) {
 	return new Promise((resolve, reject) => {
-		updatedData.added = Math.round((new Date()).getTime() / 1000);
 		db.doc(steamId)
 			.update(updatedData)
 			.then(response => resolve({ _writeTime: response._writeTime, steamid: steamId, updatedData }))

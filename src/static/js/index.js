@@ -116,8 +116,12 @@ import sTE from './lib/STE.js';
 			})
 				.then(response => response.json())
 				.then(addedUser => {
-					resolve(addedUser);
-					updateView(addedUser);
+					if (!addedUser.error) {
+						resolve(addedUser);
+						updateView(addedUser);
+					} else if (addedUser.userInfo) {
+						reject(addedUser.userInfo);
+					}
 				})
 				.catch(err => reject(err));
 		});
@@ -133,10 +137,7 @@ import sTE from './lib/STE.js';
 				.then(response => response.json())
 				.then(json => {
 					getUserInfoByIds([json.steamid])
-						.then(userInfo => {
-							userInfo[0].added = json.updatedData.added;
-							resolve(userInfo);
-						})
+						.then(userInfo => resolve(userInfo))
 						.catch(err => reject(err));
 				})
 				.catch(err => reject(err));
@@ -231,13 +232,17 @@ import sTE from './lib/STE.js';
 		const btnRemove = docFrag.querySelector('[data-btn-remove]');
 		const listItem = docFrag.querySelector('li') || docFrag;
 		const steamId = docFrag.querySelector('[data-steam-id]').dataset.steamId;
+		const added = docFrag.querySelector('[datetime]').getAttribute('datetime');
 
 		btnUpdate.addEventListener('click', () => {
 			listItem.classList.add('loading');
 			getPlayerBans(steamId)
 				.then(playerBans => {
 					updateUser(steamId, playerBans.players[0])
-						.then(userInfo => updateSingleItem(listItem, userInfo[0]))
+						.then(userInfo => {
+							userInfo[0].added = added;
+							updateSingleItem(listItem, userInfo[0]);
+						})
 						.catch(err => console.log(err))
 						.finally(() => listItem.classList.remove('loading'));
 				});
