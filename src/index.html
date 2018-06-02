@@ -5,26 +5,70 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Steam Player Bans</title>
-	<link rel="stylesheet" href="/static/css/main.css">
+	<link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
 	<header>
 		<h1>Steam Player Bans</h1>
 	</header>
 	<main>
-		<form id="form" class="form" action="" autocomplete="off">
-			<input type="text" name="url" placeholder="Players profile URL">
-			<button class="secondary">Add Player</button>
+		<form id="form-add" class="form" action="" autocomplete="off">
+			<div class="form-row">
+				<div class="form-inp-row">
+					<input class="inp" type="text" name="url" placeholder="Players profile URL">
+					<div class="overlay"></div>
+					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+				</div>
+				<button class="btn primary">Add Player</button>
+			</div>
+		</form>
+		<form id="form-search" class="form" action="" autocomplete="off" hidden>
+			<div class="form-row">
+				<div class="form-inp-row">
+				<input class="inp" type="text" name="search" placeholder="Player name">
+					<div class="overlay"></div>
+					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+				</div>
+				<button class="btn primary">Search Player</button>
+			</div>
 		</form>
 
 		<ul id="user-list">
-
 		</ul>
-
 
 		<p>Total: <span id="total">?</span></p>
 	</main>
 
-	<script src="/static/js/main.js"></script>
+	<script src="./static/js/index.js" type="module"></script>
+
+	<template id="user-list-item">
+		<li>
+			<div class="user-list-item" data-steam-id="{{ steamid }}">
+				<div class="user-list-details">
+					<a href="{{ profileurl }}" target="_blank" rel="noopener noreferrer"><img class="avatar" src="{{ avatarmedium }}" alt="{{ personaname }}" /></a>
+					<a href="{{ profileurl }}" target="_blank" rel="noopener noreferrer">{{ personaname }}</a>
+
+					<div class="user-list-bans">
+						{% if NumberOfVACBans %}
+							<p>Vac: {{ NumberOfVACBans }} - {{ DaysSinceLastBan }} days ago</p>
+						{% endif %}
+						{% if NumberOfGameBans %}
+							<p>Game: {{ NumberOfGameBans }} - {{ DaysSinceLastBan }} days ago</p>
+						{% endif %}
+					</div>
+				</div>
+				<div class="user-list-footer">
+					<p>{{ addedDate }}</p>
+					<div class="user-list-actions">
+						<button data-btn-update class="btn secondary" type="button">Update bans</button>
+						<button data-btn-remove class="btn" type="button">Remove</button>
+					</div>
+				</div>
+				<div class="overlay"></div>
+				<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+			</div>
+		</li>
+	</template>
+
 </body>
 </html>

@@ -1,0 +1,40 @@
+button,
+.btn {
+	border-radius: var(--border-radius);
+	border: none;
+	padding: 1px;
+	display: inline-block;
+	cursor: pointer;
+	text-decoration: none;
+	color: #FFFFFF;
+	background: #ACB5BD;
+	background: linear-gradient(to bottom, #ACB5BD 5%, #414A52 95%);
+	padding: 0 var(--spacing-small);
+	font-size: 1em;
+	line-height: 30px;
+}
+
+button:hover,
+.btn:hover {
+	background: linear-gradient(to bottom, #CFD8E0 5%, #565F67 95%);
+}
+
+button.primary,
+.btn.primary {
+	background: linear-gradient(to bottom, #A4D007 5%, #536904 95%);
+}
+
+button.primary:hover,
+.btn.primary:hover {
+	background: linear-gradient(to bottom, #B6D908 5%, #80A006 95%);
+}
+
+button.secondary,
+.btn.secondary {
+	background: linear-gradient(to bottom, #2F89BC 5%, #17435C 95%);
+}
+
+button.secondary:hover,
+.btn.secondary:hover {
+	background: linear-gradient(to bottom, #66C0F4 5%, #2F89BC 95%);
+}

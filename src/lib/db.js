@@ -102,9 +102,10 @@ function getTotal() {
 
 function updateUserById(steamId, updatedData) {
 	return new Promise((resolve, reject) => {
+		updatedData.added = Math.round((new Date()).getTime() / 1000);
 		db.doc(steamId)
 			.update(updatedData)
-			.then(response => resolve({ _writeTime: response._writeTime, steamid: steamId }))
+			.then(response => resolve({ _writeTime: response._writeTime, steamid: steamId, updatedData }))
 			.catch(err => reject(err));
 	});
 }

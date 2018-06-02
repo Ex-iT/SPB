@@ -1,0 +1,109 @@
+header,
+main {
+	padding: var(--spacing-large);
+}
+
+header {
+	padding-bottom: 0;
+}
+
+main {
+	padding-top: 0;
+}
+
+input {
+	border: 1px solid #898989;
+	border-radius: var(--border-radius);
+	line-height: 25px;
+}
+
+.loading .overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, .7);
+	transition: all 0.3s ease-out;
+}
+
+.loading .lds-ring {
+	display: inline-block;
+}
+
+.user-list-item {
+	position: relative;
+	margin: var(--spacing-small) 0;
+	padding: var(--spacing-extra-small);
+	background-color: rgba(84, 133, 183, 0.2);
+}
+
+.user-list-details {
+	display: flex;
+	align-items: flex-end;
+}
+
+.user-list-details a:first-child {
+	margin-right: var(--spacing-small);
+}
+
+.user-list-details a:first-child:hover img {
+	border-color: #FFFFFF;
+}
+
+.user-list-footer {
+	display: flex;
+	align-items: center;
+	margin-top: var(--spacing-small);
+}
+
+.user-list-actions {
+	margin-right: 0;
+	margin-left: auto;
+}
+
+.user-list-actions .btn:first-child {
+	margin-right: var(--spacing-small);
+}
+
+.user-list-bans {
+	margin: 0 0 0 auto;
+}
+
+.user-list-bans p {
+	color: #A94847
+}
+
+.form {
+	padding: var(--spacing-medium) 0;
+}
+
+.form.loading .btn {
+	opacity: .4;
+	cursor: auto;
+}
+
+.form .lds-ring {
+	top: -3px;
+	right: 0;
+}
+
+.form-row {
+	display: flex;
+}
+
+.form-row .btn {
+	flex: 0 0 auto;
+}
+
+.form-inp-row {
+	position: relative;
+	flex: 1 1 100%;
+	margin-right: var(--spacing-small);
+}
+
+.inp {
+	font-size: 1em;
+	padding: calc(var(--spacing-extra-small) / 2);
+	width: 100%;
+}

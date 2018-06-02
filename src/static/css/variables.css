@@ -1,0 +1,8 @@
+:root {
+	--spacing-extra-small: 10px;
+	--spacing-small: 15px;
+	--spacing-medium: 20px;
+	--spacing-large: 30px;
+
+	--border-radius: 2px;
+}

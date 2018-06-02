@@ -11,12 +11,12 @@
     "start": "cross-env NODE_ENV=production run-s build serve",
     "prebuild": "rimraf \"./dist\" && mkdir \"./dist\"",
     "build": "run-p build:*",
-    "build:html": "cpx \"src/**/*.{html,js,css,png,jpg,txt,ico}\" dist",
+    "build:files": "cpx \"src/**/*.{html,js,css,png,jpg,txt,ico}\" dist",
     "dev": "cross-env NODE_ENV=development run-p build serve:dev watch",
     "serve": "node \"./src/lib/express.js\"",
     "serve:dev": "nodemon \"./src/lib/express.js\"",
     "watch": "run-p watch:*",
-    "watch:html": "cpx \"src/**/*.{html,js,css,png,jpg,txt,ico}\" dist --watch --verbose"
+    "watch:files": "cpx \"src/**/*.{html,js,css,png,jpg,txt,ico}\" dist --watch --verbose"
   },
   "keywords": [
     "Steam",

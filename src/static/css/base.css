@@ -1,0 +1,51 @@
+*, *:before, *:after {
+	box-sizing: border-box;
+}
+
+html, body {
+	background-color: #141414;
+	color: #9B9B9B;
+}
+
+html {
+	line-height: 1.15;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: "Motiva Sans", Sans-serif;
+}
+
+[hidden] {
+	display: none !important;
+}
+
+h1 {
+	font-size: 2em;
+	margin: 0  0 var(--spacing-small) 0;
+	color: #FFFFFF;
+}
+
+a {
+	color: #9B9B9B;
+}
+
+a:hover {
+	color: #FFFFFF;
+}
+
+p {
+	margin: var(--spacing-extra-small) 0;
+}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+img {
+	border: 1px solid #898989;
+	vertical-align: text-bottom;
+}
