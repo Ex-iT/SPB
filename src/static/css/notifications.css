@@ -1,0 +1,48 @@
+.notifications {
+	color: #000000;
+}
+
+.notifications li {
+	display: flex;
+	border-top: 1px solid var(--color-background);
+}
+
+.notifications li:first-child {
+	border-top: none;
+	border-top-left-radius: var(--border-radius);
+	border-top-right-radius: var(--border-radius);
+}
+
+.notifications li:last-child {
+	border-bottom-left-radius: var(--border-radius);
+	border-bottom-right-radius: var(--border-radius);
+}
+
+.notifications p {
+	flex: 1 1 100%;
+	margin: 0;
+	padding: var(--spacing-medium);
+}
+
+.notifications .btn {
+	flex: 0 0 auto;
+	align-self: center;
+	background: transparent;
+	color: #000000;
+	padding: calc(var(--spacing-extra-small) / 2);
+	margin-right: var(--spacing-small);
+	transition: color 0.3s ease-out;
+}
+
+.notifications .btn:hover {
+	color: #FFFFFF;
+	transition: color 0.3s ease-out;
+}
+
+.notifications .error {
+	background-color: var(--color-error);
+}
+
+.notifications .warning {
+	background-color: var(--color-warning);
+}

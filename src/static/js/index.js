@@ -29,11 +29,15 @@ import sTE from './lib/STE.js';
 			.then(steamId => {
 				getUserInfoByIds([steamId])
 					.then(userInfo => addUser(userInfo))
-					.catch(err => console.log('error', err))
+					.catch(userInfo => addNotification(`Player <a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a> already added.`, 'warning'))
 					.finally(() => form.classList.remove('loading'));
 			})
 			.catch(err => {
-				console.log('error', err);
+				if (err.error) {
+					addNotification(err.message, 'warning');
+				} else {
+					addNotification('Unexpected error occured while trying to add a player');
+				}
 				form.classList.remove('loading');
 			});
 	}
@@ -48,7 +52,7 @@ import sTE from './lib/STE.js';
 			} else if (match && match[1] === 'profiles') {
 				resolve(match[2]);
 			} else {
-				reject('Unknown URL');
+				reject({ error: true, message: 'Unknown URL, check the URL and try again'});
 			}
 		});
 	}
@@ -265,6 +269,29 @@ import sTE from './lib/STE.js';
 		const month = `0${(date.getMonth() + 1)}`;
 		const year = date.getFullYear();
 		return `${day.substr(-2)}-${month.substr(-2)}-${year}`;
+	}
+
+	function addNotification(message, type = 'error') {
+		const noteElem = doc.getElementById('notifications');
+
+		const item = doc.createElement('li');
+		item.className = type;
+
+		const text = doc.createElement('p');
+		text.innerHTML = message;
+
+		const btnClose = doc.createElement('button');
+		btnClose.type = 'button';
+		btnClose.className = 'btn';
+		btnClose.innerHTML = 'X';
+		btnClose.addEventListener('click', event => {
+			event.preventDefault();
+			item.remove();
+		});
+
+		item.appendChild(text);
+		item.appendChild(btnClose);
+		noteElem.appendChild(item);
 	}
 
 })(document);

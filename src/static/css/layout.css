@@ -36,6 +36,7 @@ input {
 	margin: var(--spacing-small) 0;
 	padding: var(--spacing-extra-small);
 	background-color: rgba(84, 133, 183, 0.2);
+	border-radius: var(--border-radius);
 }
 
 .user-list-details {

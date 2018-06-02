@@ -1,4 +1,9 @@
 :root {
+	--color-default: #9B9B9B;
+	--color-error: #A94847;
+	--color-warning: #E1C48A;
+	--color-background: #141414;
+
 	--spacing-extra-small: 10px;
 	--spacing-small: 15px;
 	--spacing-medium: 20px;
