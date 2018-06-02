@@ -11,6 +11,7 @@ import sTE from './lib/STE.js';
 	function addEvents() {
 		const formAdd = doc.getElementById('form-add');
 		const formSearch = doc.getElementById('form-search');
+		const btnSearch = doc.getElementById('btn-search');
 		const btnClear = doc.getElementById('btn-clear');
 
 		formAdd.addEventListener('submit', event => {
@@ -23,6 +24,15 @@ import sTE from './lib/STE.js';
 			findPlayer(event.target, event.target.search.value);
 		});
 
+		btnSearch.addEventListener('click', event => {
+			event.preventDefault();
+			clearUserList();
+			setTotal(0);
+
+			formAdd.setAttribute('hidden', 'hidden');
+			formSearch.removeAttribute('hidden');
+		});
+
 		btnClear.addEventListener('click', event => {
 			event.preventDefault();
 			clearUserList();
@@ -30,6 +40,9 @@ import sTE from './lib/STE.js';
 			getTotal();
 
 			formSearch.search.value = '';
+
+			formAdd.removeAttribute('hidden');
+			formSearch.setAttribute('hidden', 'hidden');
 		});
 	}
 
