@@ -38,3 +38,17 @@ button.secondary:hover,
 .btn.secondary:hover {
 	background: linear-gradient(to bottom, #66C0F4 5%, #2F89BC 95%);
 }
+
+button.clean,
+.btn.clean {
+	background: transparent;
+	color: #9B9B9B;
+	text-decoration: underline;
+	padding: 0;
+	line-height: 1.15em;
+}
+
+button.clean:hover,
+.btn.clean:hover {
+	color: #FFFFFF;
+}

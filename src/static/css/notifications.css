@@ -24,19 +24,17 @@
 	padding: var(--spacing-medium);
 }
 
-.notifications .btn {
+.notifications .btn-close {
 	flex: 0 0 auto;
 	align-self: center;
 	background: transparent;
 	color: #000000;
 	padding: calc(var(--spacing-extra-small) / 2);
 	margin-right: var(--spacing-small);
-	transition: color 0.3s ease-out;
 }
 
-.notifications .btn:hover {
+.notifications .btn-close:hover {
 	color: #FFFFFF;
-	transition: color 0.3s ease-out;
 }
 
 .notifications .error {

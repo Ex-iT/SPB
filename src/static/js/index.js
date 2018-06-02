@@ -29,8 +29,7 @@ import sTE from './lib/STE.js';
 			clearUserList();
 			setTotal(0);
 
-			formAdd.setAttribute('hidden', 'hidden');
-			formSearch.removeAttribute('hidden');
+			showForm('search');
 		});
 
 		btnClear.addEventListener('click', event => {
@@ -41,8 +40,7 @@ import sTE from './lib/STE.js';
 
 			formSearch.search.value = '';
 
-			formAdd.removeAttribute('hidden');
-			formSearch.setAttribute('hidden', 'hidden');
+			showForm('add');
 		});
 	}
 
@@ -70,14 +68,20 @@ import sTE from './lib/STE.js';
 			.then(steamId => {
 				getUserInfoByIds([steamId])
 					.then(userInfo => addUser(userInfo))
-					.catch(userInfo => addNotification(`Player <a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a> already added`, 'warning'))
+					.catch(userInfo => {
+						addNotification(`
+							Player <a href="${userInfo.profileurl}" target="_blank" rel="noopener noreferrer">${userInfo.personaname}</a> already added.
+							<button class="btn clean" data-look-up="${userInfo.personaname}" type="button">Look up</button>.
+						`, 'warning');
+						clearForm();
+					})
 					.finally(() => form.classList.remove('loading'));
 			})
 			.catch(err => {
 				if (err.error) {
 					addNotification(err.message, 'warning');
 				} else {
-					addNotification('Unexpected error occured while trying to add a player');
+					addNotification('Unexpected error occured while trying to add a player.');
 				}
 				form.classList.remove('loading');
 			});
@@ -338,16 +342,48 @@ import sTE from './lib/STE.js';
 
 		const btnClose = doc.createElement('button');
 		btnClose.type = 'button';
-		btnClose.className = 'btn';
+		btnClose.className = 'btn-close';
 		btnClose.innerHTML = 'X';
 		btnClose.addEventListener('click', event => {
 			event.preventDefault();
 			item.remove();
 		});
 
+		addNotificationEvents(text, item);
+
 		item.appendChild(text);
 		item.appendChild(btnClose);
 		noteElem.appendChild(item);
+	}
+
+	function addNotificationEvents(html, notificationItem) {
+		const lookUpElems = html.querySelectorAll('[data-look-up]');
+		lookUpElems.forEach(element => {
+			element.addEventListener('click', event => {
+				event.preventDefault();
+				const form = showForm('search');
+				findPlayer(form, element.dataset.lookUp);
+				notificationItem.remove();
+			});
+		});
+	}
+
+	function showForm(form = 'add') {
+		const formAdd = doc.getElementById('form-add');
+		const formSearch = doc.getElementById('form-search');
+		let activeForm = formAdd;
+
+		if (form === 'add') {
+			formAdd.removeAttribute('hidden');
+			formSearch.setAttribute('hidden', 'hidden');
+		} else {
+			formAdd.setAttribute('hidden', 'hidden');
+			formSearch.removeAttribute('hidden');
+
+			activeForm = formSearch;
+		}
+
+		return activeForm;
 	}
 
 })(document);
