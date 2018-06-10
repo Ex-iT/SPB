@@ -40,9 +40,14 @@
 		</form>
 		<ul id="notifications" class="notifications"></ul>
 		<ul id="user-list" class="user-list"></ul>
-		<p>Total: <span id="total">?</span></p>
 	</main>
-
+	<footer>
+		<div id="footer-actions" class="actions">
+			<button id="btn-first" type="button">&lt;&lt; First page</button>
+			<p>Total: <span id="count">?</span></p>
+			<button id="btn-next" data-start-after="" type="button">Next page &gt;</button>
+		</div>
+	</footer>
 	<template id="user-list-item">
 		<li>
 			<div class="user-list-item" data-steam-id="{{ steamid }}">

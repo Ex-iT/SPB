@@ -1,5 +1,6 @@
 header,
-main {
+main,
+footer {
 	padding: var(--spacing-large);
 }
 
@@ -9,6 +10,7 @@ header {
 
 main {
 	padding-top: 0;
+	padding-bottom: 0;
 }
 
 input {
@@ -37,6 +39,12 @@ input {
 	padding: var(--spacing-extra-small);
 	background-color: rgba(84, 133, 183, 0.2);
 	border-radius: var(--border-radius);
+}
+
+.user-list-item .avatar {
+	display: inline-block;
+	width: 66px;
+	height: 66px;
 }
 
 .user-list-details {

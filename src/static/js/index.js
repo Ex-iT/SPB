@@ -3,6 +3,7 @@ import sTE from './lib/STE.js';
 (doc => {
 	const apiUrl = '/api/v1';
 	const apiSteamUrl = '/api/steam';
+	const itemsPerPage = 10;
 
 	// Set initial view
 	updateView();
@@ -13,6 +14,8 @@ import sTE from './lib/STE.js';
 		const formSearch = doc.getElementById('form-search');
 		const btnSearch = doc.getElementById('btn-search');
 		const btnClear = doc.getElementById('btn-clear');
+		const btnFirst = doc.getElementById('btn-first');
+		const btnNext = doc.getElementById('btn-next');
 
 		formAdd.addEventListener('submit', event => {
 			event.preventDefault();
@@ -35,12 +38,24 @@ import sTE from './lib/STE.js';
 		btnClear.addEventListener('click', event => {
 			event.preventDefault();
 			clearUserList();
-			getAllUsers();
+			getUsers({});
 			getTotal();
 
 			formSearch.search.value = '';
 
 			showForm('add');
+		});
+
+		btnNext.addEventListener('click', event => {
+			event.preventDefault();
+			getUsers({ startAfter: event.target.dataset.startAfter });
+			window.scrollTo(0, 0);
+		});
+
+		btnFirst.addEventListener('click', event => {
+			event.preventDefault();
+			getUsers({});
+			window.scrollTo(0, 0);
 		});
 	}
 
@@ -54,7 +69,7 @@ import sTE from './lib/STE.js';
 					steamIds.forEach(steamId => updateUsers(usersInfo[steamId]));
 					setTotal(steamIds.length);
 				})
-				.catch(err => addNotification(err))
+				.catch(err => addNotification(err.message))
 				.finally(() => form.classList.remove('loading'));
 		} else {
 			addNotification('Enter a search query', 'warning');
@@ -193,11 +208,7 @@ import sTE from './lib/STE.js';
 				body: JSON.stringify({ steamid: steamId, updateddata })
 			})
 				.then(response => response.json())
-				.then(json => {
-					getUserInfoByIds([json.steamid])
-						.then(userInfo => resolve(userInfo))
-						.catch(err => reject(err));
-				})
+				.then(json => resolve(json))
 				.catch(err => reject(err));
 		});
 	}
@@ -218,25 +229,31 @@ import sTE from './lib/STE.js';
 		userList.innerHTML = '';
 	}
 
+	function stateUserList(loading = true) {
+		const userList = doc.getElementById('user-list');
+		userList.classList.toggle('loading', loading);
+	}
+
 	function getTotal() {
 		fetch(`${apiUrl}/user/total`)
 			.then(response => response.json())
 			.then(json => setTotal(json.total))
-			.catch(err => console.log(err));
+			.catch(err => addNotification(err.message));
 	}
 
-	function setTotal(number) {
-		doc.getElementById('total').innerHTML = number;
+	function setTotal(total) {
+		doc.getElementById('count').innerHTML = total;
 	}
 
 	function updateUsers(userInfo = null) {
 		if (userInfo) {
 			updateUserList(userInfo, true);
 		} else {
-			getAllUsers();
+			getUsers({});
 		}
 	}
 
+	// @TODO: use this for fuzzy search
 	function getAllUsers() {
 		fetch(`${apiUrl}/user`)
 			.then(response => response.json())
@@ -245,7 +262,28 @@ import sTE from './lib/STE.js';
 					.filter(object => object.indexOf('_') === -1)
 					.forEach(key => updateUserList(usersInfo[key]));
 			})
-			.catch(err => addNotification(err));
+			.catch(err => addNotification(err.message));
+	}
+
+	function getUsers({ limit = itemsPerPage, startAfter = -1 }) {
+		stateUserList();
+		const url = `${apiUrl}/user?limit=${limit}&startAfter=${startAfter}`;
+		fetch(url)
+			.then(response => response.json())
+			.then(usersInfo => {
+				clearUserList();
+				if (usersInfo.error) {
+					addNotification(usersInfo.message);
+				} else {
+					const btnNext = doc.getElementById('btn-next');
+					btnNext.dataset.startAfter = usersInfo._startAfter;
+					Object.keys(usersInfo)
+						.filter(object => object.indexOf('_') === -1)
+						.forEach(key => updateUserList(usersInfo[key]));
+				}
+			})
+			.catch(err => addNotification(err.message))
+			.finally(() => stateUserList(false));
 	}
 
 	function removeItem(steamId) {
@@ -302,13 +340,19 @@ import sTE from './lib/STE.js';
 			listItem.classList.add('loading');
 			getPlayerBans(steamId)
 				.then(playerBans => {
-					updateUser(steamId, playerBans.players[0])
+					getUserInfoByIds([steamId])
 						.then(userInfo => {
-							userInfo[0].added = added;
-							updateSingleItem(listItem, userInfo[0]);
-						})
-						.catch(err => console.log(err))
-						.finally(() => listItem.classList.remove('loading'));
+							const updatedData = Object.assign({}, playerBans.players[0], userInfo[0]);
+							updateUser(steamId, updatedData)
+								.then(() => {
+									updatedData.added = added;
+									updateSingleItem(listItem, updatedData);
+								})
+								.catch(err => console.log(err))
+								.finally(() => listItem.classList.remove('loading'));
+						});
+
+
 				});
 		});
 
@@ -371,14 +415,17 @@ import sTE from './lib/STE.js';
 	function showForm(form = 'add') {
 		const formAdd = doc.getElementById('form-add');
 		const formSearch = doc.getElementById('form-search');
+		const footerActions = doc.getElementById('footer-actions');
 		let activeForm = formAdd;
 
 		if (form === 'add') {
 			formAdd.removeAttribute('hidden');
 			formSearch.setAttribute('hidden', 'hidden');
+			footerActions.removeAttribute('hidden');
 		} else {
 			formAdd.setAttribute('hidden', 'hidden');
 			formSearch.removeAttribute('hidden');
+			footerActions.setAttribute('hidden', 'hidden');
 
 			activeForm = formSearch;
 		}

@@ -65,9 +65,10 @@ function getAllData(params) {
 	const limit = parseInt(params.limit, 10) || 50;
 	const sorting = { key: 'added', order: 'desc' };
 	let startAfter = params.startAfter;
+	const valueType = parseInt(startAfter, 10) ? 'number' : 'string';
 
-	if (params.valueType === 'number') {
-		startAfter = parseInt(params.startAfter, 10);
+	if (valueType === 'number') {
+		startAfter = parseInt(startAfter, 10);
 	}
 
 	if (params.key) {
@@ -77,14 +78,17 @@ function getAllData(params) {
 
 	return new Promise((resolve, reject) => {
 		let query = db.orderBy(sorting.key, sorting.order).limit(limit);
-		if (startAfter) {
+		if (startAfter && startAfter > 0) {
 			query = query.startAfter(startAfter);
 		}
 
 		query.get()
 			.then(snapshot => {
-				const value = snapshot.docs[snapshot.docs.length - 1].data()[sorting.key];
-				let docs = { _startAfter: value, _valueType: typeof value };
+				if (!snapshot.docs.length) {
+					reject({ error: true, message: 'No more results' });
+				}
+				const startAfter = snapshot.docs[snapshot.docs.length - 1].data()[sorting.key];
+				const docs = { _startAfter: startAfter, _valueType: typeof startAfter };
 				snapshot.forEach(doc => docs[doc.id] = doc.data());
 				resolve(docs);
 			})
