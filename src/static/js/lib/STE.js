@@ -3,7 +3,7 @@
  * Over simplified template engine
  *
  * @param {String} template HTML string
- * @param {Objecy} context The data for the template
+ * @param {Object} context The data for the template
  * @returns {String} A string with the parsed HTML
  */
 function sTE(template, context) {
